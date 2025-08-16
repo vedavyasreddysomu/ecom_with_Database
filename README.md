@@ -2,6 +2,9 @@ make it by vedavyas reddy somu
 
 
 
+
+
+
 E-commerce Platform on Google Apps Script
 This repository contains the code for a full-stack e-commerce application built entirely on Google Apps Script. It leverages Google Sheets as a database, providing a robust, serverless, and easily manageable backend. The platform includes separate user and admin web interfaces for a complete end-to-end e-commerce solution.
 
