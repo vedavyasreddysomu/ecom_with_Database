@@ -1,12 +1,12 @@
 // --- Global Configuration: IDs for your three separate Google Spreadsheets ---
 // IMPORTANT: These IDs MUST match the Google Sheets you provided.
 // Make sure each spreadsheet has a default sheet named 'Sheet1' or the specific tab name you prefer.
-const USERS_SPREADSHEET_ID = '1yZmnA9Uns5-rRVNk2Z9XwSl9th1u71dkEHv4FUKuJuQ';
-const ANNOUNCEMENTS_SPREADSHEET_ID = '11_wKUoD8dlM914hlpsyPWNgtZexSS5dkUl3ic_W_pt4';
-const PRODUCTS_SPREADSHEET_ID = '1iVuCuT9IWUvD_fMuwSMd7ucfy9oPO4jWB50MHJ1S6Hw';
+const USERS_SPREADSHEET_ID = 'add a google sheet 1 url';
+const ANNOUNCEMENTS_SPREADSHEET_ID = 'add a google sheet 2 url';
+const PRODUCTS_SPREADSHEET_ID = 'add a googlesheet 3 url';
 
 // New: Dedicated Spreadsheet ID for Orders
-const ORDERS_SPREADSHEET_ID = '1jBFgEH50wn5kcMiObKfrjFta81B_wYuxQ7_zBOgK0cw';
+const ORDERS_SPREADSHEET_ID = 'add a google sheet 4 url';
 
 
 // Define the exact names of the sheets (tabs) within each of these spreadsheets
@@ -1218,4 +1218,5 @@ function getOrderHistory(userEmail) {
     Logger.log(`Error fetching order history for ${userEmail}: ${e.message}`);
     return { success: false, orders: [], message: 'Failed to fetch order history: ' + e.message };
   }
+
 }
