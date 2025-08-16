@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <title>User Authentication</title>
+    <!-- Essential for mobile responsiveness: tells the browser to set the viewport width to the device's width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts: Roboto for a modern, clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #4285f4; /* Google Blue */
+            --danger: #ea4335;  /* Google Red */
+            --success: #34a853; /* Google Green */
+            --gray: #f1f1f1;
+            --dark-gray: #5f6368;
+            --warning: #fbbc05; /* Google Yellow */
+            --light-text: #666;
+            --dark-text: #333;
+            --border-color: #ddd;
+            --shadow-light: rgba(0,0,0,0.1);
+            --focus-shadow: rgba(66, 133, 244, 0.2);
+            --container-shadow: rgba(0,0,0,0.15); /* Slightly stronger shadow for the main container */
+        }
+
+        /* General Body Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            /* Subtle gradient for background, creating depth */
+            background: linear-gradient(to bottom right, var(--gray) 0%, #e8e8e8 100%); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            margin: 0;
+            padding: 20px; /* Add some padding for smaller screens */
+            box-sizing: border-box; /* Include padding in element's total width and height */
+            color: var(--dark-text);
+            -webkit-font-smoothing: antialiased; /* Smoother font rendering */
+            -moz-osx-font-smoothing: grayscale; /* Smoother font rendering */
+        }
+
+        /* Main Container for Forms - Enhanced Visuals */
+        .container {
+            background: white;
+            border-radius: 12px; /* Slightly more rounded */
+            box-shadow: 0 6px 20px var(--container-shadow); /* Stronger, softer shadow */
+            width: 100%;
+            max-width: 480px; /* Slightly increased max-width for better balance on desktop */
+            padding: 35px; /* Slightly more padding */
+            text-align: center;
+            box-sizing: border-box; /* Ensures padding doesn't exceed max-width */
+            animation: fadeIn 0.5s ease-out; /* Fade in animation for the container */
+        }
+
+        h2 {
+            color: var(--dark-text);
+            margin-bottom: 30px; /* More space below heading */
+            font-weight: 700; /* Bolder heading */
+            font-size: 2em; /* Slightly larger heading */
+        }
+
+        /* Tab Buttons for Login/Signup - Professional Look */
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0; /* Thicker border */
+            margin-bottom: 30px;
+            overflow: hidden; /* Ensures active border doesn't overflow */
+        }
+        .tab-button {
+            flex: 1;
+            padding: 16px 0; /* More vertical padding */
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1.15em; /* Slightly larger font */
+            font-weight: 500;
+            color: var(--dark-gray);
+            transition: color 0.3s ease, border-bottom 0.3s ease, background-color 0.3s ease; /* Added background-color transition */
+            position: relative; /* For the active indicator */
+            outline: none; /* Remove default outline */
+        }
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary); /* Maintain active border */
+            font-weight: 700; /* Bolder when active */
+        }
+        .tab-button:hover:not(.active) {
+            color: var(--primary);
+            background-color: #f5f5f5; /* Light background on hover for non-active tabs */
+        }
+        .tab-button:focus-visible { /* Accessibility for keyboard focus */
+            outline: 2px dashed var(--primary);
+            outline-offset: 3px;
+        }
+
+
+        /* Form and Input Styling */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--light-text);
+            font-weight: 500; /* Slightly bolder label */
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%; /* Changed to 100% and rely on padding */
+            padding: 14px; /* More padding for larger touch targets */
+            border: 1px solid var(--border-color);
+            border-radius: 8px; /* More rounded inputs */
+            font-size: 1em;
+            color: var(--dark-text);
+            transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+            box-sizing: border-box; /* Crucial for full width without overflow */
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--focus-shadow); /* Stronger focus ring */
+        }
+
+        /* New styles for password visibility toggle */
+        .password-input-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        .toggle-password:hover {
+            opacity: 1;
+        }
+        .eye-icon {
+            width: 100%;
+            height: 100%;
+            fill: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+        .password-input-container input {
+            padding-right: 40px !important; /* Make space for the eye icon */
+        }
+
+        /* Password Strength Indicator */
+        .password-strength-container {
+            margin-top: 10px;
+            font-size: 0.85em;
+            text-align: right;
+        }
+        .password-strength-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .strength-indicator {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+            border-radius: 3px;
+        }
+        .strength-indicator.weak {
+            background-color: var(--danger);
+            width: 33%;
+        }
+        .strength-indicator.medium {
+            background-color: var(--warning);
+            width: 66%;
+        }
+        .strength-indicator.strong {
+            background-color: var(--success);
+            width: 100%;
+        }
+        .password-strength-text {
+            color: var(--dark-gray);
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        .password-strength-text.weak { color: var(--danger); }
+        .password-strength-text.medium { color: var(--warning); }
+        .password-strength-text.strong { color: var(--success); }
+
+
+        /* Button Styling */
+        .button-area {
+            margin-top: 30px; /* Space above submit buttons */
+        }
+        .btn {
+            width: 100%;
+            padding: 15px 15px; /* More padding for larger touch targets */
+            border: none;
+            border-radius: 8px; /* More rounded buttons */
+            cursor: pointer;
+            font-size: 1.05em; /* Slightly larger font */
+            font-weight: 600; /* Bolder text */
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s; /* Added transform for hover effect */
+            margin-top: 15px; /* More spacing between buttons */
+            letter-spacing: 0.5px; /* Slight letter spacing */
+            outline: none; /* Remove default outline */
+            display: flex; /* Enable flexbox for spinner alignment */
+            align-items: center; /* Center spinner vertically */
+            justify-content: center; /* Center content horizontally */
+        }
+        .btn:active {
+            transform: translateY(1px); /* Slight press effect */
+        }
+        .btn:focus-visible { /* Accessibility for keyboard focus */
+            outline: 2px dashed white;
+            outline-offset: 3px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.2); /* Soft shadow */
+        }
+
+        .btn-primary:hover:not(:disabled) { /* Added :not(:disabled) for hover effect */
+            background-color: #357ae8; /* Darker blue on hover */
+            box-shadow: 0 6px 12px rgba(66, 133, 244, 0.3); /* Stronger shadow on hover */
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
+        .btn-primary:disabled { /* Styling for disabled state */
+            background-color: #a0c3f7; /* Lighter blue for disabled */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .logout-btn {
+            background-color: var(--danger);
+            color: white;
+            padding: 12px 25px; /* Adjusted padding */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 25px;
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(234, 67, 53, 0.2);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            outline: none;
+        }
+        .logout-btn:hover {
+            background-color: #d32f2f;
+            box-shadow: 0 6px 12px rgba(234, 67, 53, 0.3);
+            transform: translateY(-2px);
+        }
+        .logout-btn:active {
+            transform: translateY(1px);
+        }
+        .logout-btn:focus-visible {
+            outline: 2px dashed white;
+            outline-offset: 3px;
+        }
+
+        /* Spinner animation for buttons */
+        @keyframes spin-button {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .button-spinner-icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px; /* Space between spinner and text */
+            width: 20px; /* Size of the spinner */
+            height: 20px;
+            animation: spin-button 1s linear infinite;
+        }
+        .button-spinner-icon circle {
+            stroke: currentColor; /* Use current text color (white for primary buttons) */
+            stroke-opacity: 0.25;
+        }
+        .button-spinner-icon path {
+            fill: currentColor; /* Use current text color */
+            stroke: currentColor;
+        }
+
+        .admin-link {
+            display: block;
+            margin-top: 25px; /* More space above link */
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600; /* Bolder link text */
+            font-size: 0.98em; /* Slightly larger */
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+        .admin-link:hover {
+            text-decoration: underline;
+            color: #357ae8; /* Darker blue on hover */
+        }
+
+        /* Message Display - Enhanced Visuals */
+        .message {
+            padding: 12px 20px; /* More padding */
+            margin-top: 25px; /* More margin */
+            border-radius: 8px; /* More rounded */
+            font-size: 0.98em; /* Slightly larger */
+            display: none; /* Hidden by default */
+            text-align: center;
+            opacity: 0; /* For fade-in/out */
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Subtle shadow */
+            font-weight: 500;
+        }
+
+        .message.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message.success {
+            background-color: #e6f7ee; /* Light green */
+            color: var(--success);
+            border: 1px solid #b7e8c8;
+        }
+
+        .message.error {
+            background-color: #fce8e6; /* Light red */
+            color: var(--danger);
+            border: 1px solid #fbcac4;
+        }
+
+        /* New styles for forgot password link */
+        .forgot-password {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+        .forgot-link:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none;
+        }
+
+        /* User Dashboard - Enhanced Visuals */
+        .user-dashboard {
+            padding: 30px; /* More padding */
+            background: #fdfdfd;
+            border-radius: 12px; /* More rounded */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Stronger shadow */
+            text-align: center;
+        }
+
+        .user-dashboard h3 {
+            color: var(--primary);
+            margin-bottom: 20px; /* More space below heading */
+            font-size: 2em; /* Larger heading */
+            font-weight: 700; /* Bolder */
+        }
+
+        .user-info p {
+            font-size: 1.15em; /* Slightly larger info text */
+            color: #444;
+            margin-bottom: 12px; /* More space between info lines */
+        }
+
+        .user-info strong {
+            color: #222;
+            font-weight: 600; /* Bolder info values */
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px; /* Slightly less padding on very small screens */
+            }
+            .container {
+                padding: 25px; /* Reduce container padding */
+                border-radius: 8px; /* Slightly less rounded corners */
+                box-shadow: 0 4px 15px var(--container-shadow); /* Adjust shadow for mobile */
+            }
+            h2 {
+                font-size: 1.8em; /* Smaller heading on mobile */
+                margin-bottom: 25px;
+            }
+            .tab-button {
+                font-size: 1.05em; /* Slightly smaller tab text */
+                padding: 14px 0;
+            }
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                padding: 12px; /* Slightly less padding for inputs on mobile */
+                border-radius: 6px;
+            }
+            .btn {
+                padding: 13px 15px; /* Slightly less padding for buttons on mobile */
+                font-size: 1em;
+                border-radius: 6px;
+                margin-top: 12px;
+            }
+            .logout-btn {
+                padding: 10px 20px;
+                font-size: 0.95em;
+            }
+            .message {
+                padding: 10px 15px;
+                margin-top: 20px;
+                font-size: 0.9em;
+                border-radius: 6px;
+            }
+            .user-dashboard {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .user-dashboard h3 {
+                font-size: 1.6em;
+                margin-bottom: 15px;
+            }
+            .user-info p {
+                font-size: 1.05em;
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-buttons">
+            <button class="tab-button active" id="show-login" onclick="showForm('login')">Login</button>
+            <button class="tab-button" id="show-signup" onclick="showForm('signup')">Sign Up</button>
+        </div>
+
+        <div id="auth-forms">
+            <div id="login-form">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <div class="password-input-container">
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                        <span class="toggle-password" onclick="togglePasswordVisibility('login-password', this)">
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="forgot-password">
+                    <a href="1.html" class="forgot-link">Forgot Password?</a>
+                </div>
+                <div class="button-area">
+                    <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+                </div>
+                <div id="login-message" class="message"></div>
+            </div>
+
+            <div id="signup-form" class="hidden">
+                <h2>Sign Up</h2>
+                <div class="form-group">
+                    <label for="signup-name">Name:</label>
+                    <input type="text" id="signup-name" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password:</label>
+                    <div class="password-input-container">
+                        <input type="password" id="signup-password" placeholder="Create a password" required onkeyup="checkPasswordStrength()">
+                        <span class="toggle-password" onclick="togglePasswordVisibility('signup-password', this)">
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div id="strength-indicator" class="strength-indicator"></div>
+                        </div>
+                        <p id="password-strength-text" class="password-strength-text"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password:</label>
+                    <div class="password-input-container">
+                        <input type="password" id="signup-confirm-password" placeholder="Re-enter your password" required>
+                        <span class="toggle-password" onclick="togglePasswordVisibility('signup-confirm-password', this)">
+                            <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="button-area">
+                    <button class="btn btn-primary" onclick="handleSignup()">Sign Up</button>
+                </div>
+                <div id="signup-message" class="message"></div>
+            </div>
+        </div>
+
+        <div id="user-dashboard" class="user-dashboard hidden">
+            <h3>User Dashboard</h3>
+            <p id="welcome-message"></p>
+            <div class="user-info">
+                <p>Email: <strong><span id="user-email-display"></span></strong></p>
+                <p>Balance: <strong><span id="user-balance-display"></span></strong></p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <a href="#" target="_top" class="admin-link" id="shop-page-link">Go to Shop Page</a>
+        </div>
+    </div>
+
+    <script>
+        var currentUser = null; // Global variable to store current user data
+        // Define the shop page URL here, making it easy to find and change
+        const SHOP_PAGE_URL = 'https://net123456.glitch.me/'; // *** IMPORTANT: CHANGE THIS TO YOUR ACTUAL SHOP PAGE URL ***
+
+        // Expose Apps Script functions to the client-side
+        function callAppsScript(functionName, args, successCallback, errorCallback) {
+            google.script.run
+                .withSuccessHandler(successCallback)
+                .withFailureHandler(errorCallback)
+                [functionName].apply(null, args);
+        }
+
+        function showMessage(elementId, message, isSuccess) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.textContent = message;
+            messageElement.className = `message ${isSuccess ? 'success' : 'error'}`;
+            messageElement.classList.add('active'); // Add active class to trigger CSS transition
+
+            setTimeout(() => {
+                messageElement.classList.remove('active'); // Remove active class to hide with transition
+                setTimeout(() => { messageElement.style.display = 'none'; }, 300); // Fully hide after transition
+            }, 5000); // Message visible for 5 seconds
+            messageElement.style.display = 'block'; // Ensure display before transition
+        }
+
+        function showForm(formType) {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('signup-form').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+
+            // Update tab button active states
+            document.getElementById('show-login').classList.remove('active');
+            document.getElementById('show-signup').classList.remove('active');
+            
+            // Clear messages when switching forms
+            setTimeout(() => { // Added a delay to allow message to fade out visually before clearing
+                document.getElementById('login-message').classList.remove('active');
+                document.getElementById('signup-message').classList.remove('active');
+                document.getElementById('login-message').style.display = 'none';
+                document.getElementById('signup-message').style.display = 'none';
+            }, 300);
+
+
+            if (formType === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('show-login').classList.add('active');
+            } else if (formType === 'signup') {
+                document.getElementById('signup-form').classList.remove('hidden');
+                document.getElementById('show-signup').classList.add('active');
+                // Reset password strength indicator when opening signup form
+                checkPasswordStrength();
+            }
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showMessage('login-message', 'Please enter email and password.', false);
+                return;
+            }
+
+            // Disable button during login attempt to prevent double clicks
+            const loginBtn = document.querySelector('#login-form .btn-primary');
+            loginBtn.disabled = true;
+            // Changed to use SVG spinner for loading animation
+            loginBtn.innerHTML = '<svg class="button-spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Logging in...</span>';
+
+
+            callAppsScript(
+                'loginUser',
+                [email, password],
+                function(response) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Login'; // Restore original text
+
+                    if (response.success) {
+                        // Directly set user data in localStorage
+                        currentUser = response.user;
+                        localStorage.setItem('currentUserEmail', currentUser.email);
+                        localStorage.setItem('currentUserName', currentUser.name);
+                        localStorage.setItem('currentUserBalance', currentUser.balance);
+                        localStorage.setItem('isLoggedIn', 'true'); // Indicate login status
+                        
+                        // Directly redirect to the shop page after successful login
+                        window.location.href = SHOP_PAGE_URL;
+
+                    } else {
+                        showMessage('login-message', response.message, false);
+                        console.error('Login error:', response.message);
+                    }
+                },
+                function(error) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Login';
+                    showMessage('login-message', 'Error during login: ' + error.message, false);
+                    console.error('Login RPC error:', error);
+                }
+            );
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+            if (!name || !email || !password || !confirmPassword) {
+                showMessage('signup-message', 'Please fill in all fields.', false);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('signup-message', 'Passwords do not match. Please try again.', false);
+                return;
+            }
+            
+            // Password can now contain numbers, so this specific check is removed.
+            // if (/\d/.test(password)) {
+            //     showMessage('signup-message', 'Password cannot contain numbers. Please use only letters and symbols.', false);
+            //     return;
+            // }
+
+            // Check password strength based on the indicator's current state
+            const strengthTextElement = document.getElementById('password-strength-text');
+            const strengthText = strengthTextElement.textContent.toLowerCase();
+
+            // The 'invalid' check is removed as numbers are now allowed.
+            // Signup is prevented if the password is still "weak" based on other criteria.
+            if (strengthText === 'weak') { 
+                showMessage('signup-message', 'Please create a stronger password. It should be at least 8 characters long and use a mix of letters, numbers, and symbols.', false);
+                console.warn("User is attempting to sign up with a weak password.");
+                return; // Prevent signup with weak passwords
+            }
+
+            // Disable button during signup attempt
+            const signupBtn = document.querySelector('#signup-form .btn-primary');
+            signupBtn.disabled = true;
+            // Changed to use SVG spinner for loading animation
+            signupBtn.innerHTML = '<svg class="button-spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Signing up...</span>';
+
+
+            callAppsScript(
+                'signupUser',
+                [name, email, password],
+                function(response) {
+                    signupBtn.disabled = false;
+                    signupBtn.innerHTML = 'Sign Up'; // Restore original text
+
+                    if (response.success) {
+                        showMessage('signup-message', response.message + ' You can now log in.', true);
+                        // Clear signup form and show login form
+                        document.getElementById('signup-name').value = '';
+                        document.getElementById('signup-email').value = '';
+                        document.getElementById('signup-password').value = '';
+                        document.getElementById('signup-confirm-password').value = '';
+                        checkPasswordStrength(); // Reset strength indicator
+                        setTimeout(() => { showForm('login'); }, 2000); // Switch to login after 2 seconds
+                    } else {
+                        showMessage('signup-message', response.message, false);
+                        console.error('Signup error:', response.message);
+                    }
+                },
+                function(error) {
+                    signupBtn.disabled = false;
+                    signupBtn.innerHTML = 'Sign Up';
+                    showMessage('signup-message', 'Error during signup: ' + error.message, false);
+                    console.error('Signup RPC error:', error);
+                }
+            );
+        }
+
+        // Password Strength Indicator Logic
+        function checkPasswordStrength() {
+            const password = document.getElementById('signup-password').value;
+            const strengthIndicator = document.getElementById('strength-indicator');
+            const strengthTextElement = document.getElementById('password-strength-text');
+
+            let strength = 0;
+            let feedback = "Enter password";
+            let colorClass = "";
+
+            // Numbers are now allowed, so no early return for them.
+
+            // Check for length
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+
+            // Check for character types (letters, numbers, and symbols are now allowed)
+            let hasLowercase = /[a-z]/.test(password);
+            let hasUppercase = /[A-Z]/.test(password);
+            let hasNumbers = /\d/.test(password); // Re-added numbers to check
+            let hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+
+            let charTypeCount = 0;
+            if (hasLowercase) charTypeCount++;
+            if (hasUppercase) charTypeCount++;
+            if (hasNumbers) charTypeCount++; // Count numbers as a character type
+            if (hasSymbols) charTypeCount++;
+
+            // Adjust strength based on character types
+            if (charTypeCount >= 2 && password.length >= 8) strength += 1;
+            if (charTypeCount >= 3 && password.length >= 12) strength += 1;
+
+
+            // Determine feedback based on calculated strength
+            if (password.length === 0) {
+                strengthIndicator.style.width = '0%';
+                feedback = "Enter password";
+                colorClass = "";
+            } else if (strength < 2) { // E.g., < 8 chars or only one type
+                strengthIndicator.style.width = '33%';
+                strengthIndicator.className = 'strength-indicator weak';
+                feedback = "Weak (Min 8 chars, mix of types)";
+                colorClass = "weak";
+            } else if (strength < 4) { // E.g., 8-11 chars, 2+ types
+                strengthIndicator.style.width = '66%';
+                strengthIndicator.className = 'strength-indicator medium';
+                feedback = "Medium (Consider more types/length)";
+                colorClass = "medium";
+            } else { // E.g., 12+ chars, 3+ types
+                strengthIndicator.style.width = '100%';
+                strengthIndicator.className = 'strength-indicator strong';
+                feedback = "Strong!";
+                colorClass = "strong";
+            }
+            
+            strengthTextElement.textContent = feedback;
+            strengthTextElement.className = `password-strength-text ${colorClass}`;
+        }
+
+        // Toggles password visibility in input fields
+        function togglePasswordVisibility(inputId, toggleElement) {
+            const input = document.getElementById(inputId);
+            const eyeIcon = toggleElement.querySelector('.eye-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.style.fill = 'var(--primary)'; // Highlight icon when visible
+                eyeIcon.style.transform = 'scale(1.1)'; // Simple scale animation
+                setTimeout(() => { eyeIcon.style.transform = 'scale(1)'; }, 200);
+            } else {
+                input.type = 'password';
+                eyeIcon.style.fill = 'var(--dark-gray)'; // Reset icon color
+                eyeIcon.style.transform = 'scale(0.9)'; // Simple scale animation
+                setTimeout(() => { eyeIcon.style.transform = 'scale(1)'; }, 200);
+            }
+        }
+
+
+        function loadUserSession() {
+            const userEmail = localStorage.getItem('currentUserEmail');
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+            if (userEmail && isLoggedIn) {
+                // Validate session with the backend
+                callAppsScript(
+                    'checkUserSession',
+                    [userEmail],
+                    function(response) {
+                        if (response.isLoggedIn) {
+                            currentUser = response.user;
+                            // If already logged in, redirect directly to the shop page
+                            window.location.href = SHOP_PAGE_URL;
+                            console.log("User session validated. Redirecting to shop page.");
+                        } else {
+                            // Session no longer valid, clear local storage
+                            logout();
+                            console.log("User session invalid, logged out.");
+                        }
+                    },
+                    function(error) {
+                        console.error("Error checking user session:", error);
+                        logout(); // Log out on error
+                    }
+                );
+            } else {
+                // If no current user, default to showing login form
+                showForm('login'); // Ensure login form is shown initially
+            }
+        }
+
+        function displayUserDashboard() {
+            if (currentUser) {
+                document.getElementById('auth-forms').classList.add('hidden');
+                document.getElementById('user-dashboard').classList.remove('hidden');
+
+                document.getElementById('welcome-message').textContent = `Welcome, ${currentUser.name}!`;
+                document.getElementById('user-email-display').textContent = currentUser.email;
+                document.getElementById('user-balance-display').textContent = `$${(currentUser.balance || 0).toFixed(2)}`;
+                
+                // Set the href for the "Go to Shop Page" link
+                document.getElementById('shop-page-link').href = SHOP_PAGE_URL;
+            } else {
+                showForm('login');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUserEmail');
+            localStorage.removeItem('currentUserName');
+            localStorage.removeItem('currentUserBalance');
+            localStorage.removeItem('isLoggedIn');
+            currentUser = null;
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            showMessage('login-message', 'You have been logged out.', true);
+            showForm('login');
+        }
+
+        // Initialize the page on load
+        window.onload = loadUserSession;
+    </script>
+</body>
+</html>

@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Our Products</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Custom Tailwind Configuration (Optional, but good for branding) */
+    /* This allows you to define your custom colors, fonts etc. directly in Tailwind */
+    /* and use them as e.g., text-primary, bg-primary */
+    :root {
+        --color-primary: #4285f4; /* Google Blue */
+        --color-secondary: #34a853; /* Google Green */
+        --color-tertiary: #fbbc05; /* Google Yellow */
+        --color-danger: #ea4335; /* Google Red */
+        --color-text-dark: #1f2937; /* Dark Gray for main text */
+        --color-text-light: #4b5563; /* Medium Gray for secondary text */
+        --color-bg-light: #f9fafb; /* Lighter background */
+        --color-card-bg: #ffffff; /* White card background */
+        --color-border-light: #e5e7eb; /* Light border */
+        --color-highlight-light: #eff6ff; /* Light blue for highlights/hover */
+
+        /* Specific for notifications and chat */
+        --color-notify-bg: #e0f2fe; /* Light blue for notification bar */
+        --color-notify-text: #075985; /* Dark blue text for notification bar */
+        --color-chat-bg-user: #e2e8f0; /* Light gray for user messages */
+        --color-chat-bg-admin: #d1fae5; /* Light green for admin messages */
+
+        /* New: for price tag look */
+        --price-tag-bg: #fef08a; /* Light yellow */
+        --price-tag-text: #a16207; /* Dark yellow */
+    }
+
+    /* Apply custom colors to Tailwind's utility classes */
+    .bg-primary { background-color: var(--color-primary); }
+    .text-primary { color: var(--color-primary); }
+    .bg-secondary { background-color: var(--color-secondary); }
+    .text-secondary { color: var(--color-secondary); }
+    .bg-tertiary { background-color: var(--color-tertiary); }
+    .text-tertiary { color: var(--color-tertiary); }
+    .bg-danger { background-color: var(--color-danger); }
+    .text-danger { color: var(--color-danger); }
+    .text-dark-gray { color: var(--color-text-dark); }
+    .text-light-gray { color: var(--color-text-light); }
+    .bg-card { background-color: var(--color-card-bg); }
+    .border-light { border-color: var(--color-border-light); }
+    .bg-highlight-light { background-color: var(--color-highlight-light); }
+    .bg-notify { background-color: var(--color-notify-bg); }
+    .text-notify { color: var(--color-notify-text); }
+    .bg-chat-user { background-color: var(--color-chat-bg-user); }
+    .bg-chat-admin { background-color: var(--color-chat-admin); }
+
+    /* Custom classes for price tag */
+    .bg-price-tag { background-color: var(--price-tag-bg); }
+    .text-price-tag { color: var(--price-tag-text); }
+
+    /* Basic body styles not covered by Tailwind defaults */
+    body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: var(--color-bg-light); /* Apply custom background color */
+        color: var(--color-text-dark); /* Apply default text color */
+    }
+
+    /* Custom styles for animations that are not easily done with Tailwind */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slideInFromTop {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideInFromBottom {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    .modal {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    .modal-content {
+        animation: slideInFromTop 0.4s ease-out forwards;
+    }
+    .message.active {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    .message.hide {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    .product-card:hover {
+        animation: pulse 0.6s infinite alternate; /* Subtle pulse on hover */
+    }
+
+    /* Notification Bar Animation */
+    #notification-bar {
+        transform: translateY(-100%); /* Start off-screen */
+        transition: transform 0.5s ease-out; /* Smooth slide-in/out */
+    }
+    #notification-bar.active {
+        transform: translateY(0); /* Slide into view */
+    }
+
+    /* Scrollbar Styling (Optional, for better aesthetics) */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <div id="notification-bar" class="fixed top-0 left-0 w-full bg-notify text-notify p-3 text-center text-sm shadow-md flex justify-center items-center gap-2 z-50">
+    <span id="notification-text" class="font-medium"></span>
+    <button class="close-notification text-notify text-2xl bg-transparent border-none cursor-pointer ml-auto hover:text-gray-700 focus:outline-none" onclick="hideNotification()">&times;</button>
+  </div>
+
+  <header class="sticky top-0 bg-primary text-white p-4 md:p-6 rounded-b-xl shadow-lg z-40 mb-8 mx-auto w-full max-w-7xl flex flex-wrap justify-between items-center gap-4">
+    <div id="auth-header-section" class="flex items-center gap-4 flex-wrap">
+      </div>
+    <div class="flex items-center gap-3 flex-wrap justify-end">
+      <button id="order-history-btn" class="action-btn bg-secondary hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75" onclick="openOrderHistoryModal()">
+        <i class="fas fa-history mr-2"></i> Order History
+      </button>
+      <button id="recharge-btn" class="action-btn bg-secondary hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75" onclick="openRechargeModal()">
+        <i class="fas fa-wallet mr-2"></i> Recharge Account
+      </button>
+      <button id="chat-btn" class="chat-btn bg-tertiary hover:bg-yellow-600 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75" onclick="openChatModal()">
+        <i class="fas fa-comments mr-2"></i> Chat with Admin
+      </button>
+      <button id="auth-action-btn" class="logout-btn bg-white hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-75" onclick="logout()">
+        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <div id="shop-message" class="message hidden p-4 mb-6 rounded-lg text-center font-medium shadow-sm transition-all duration-300 ease-in-out"></div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+      <div class="relative w-full sm:w-2/3">
+        <input type="text" id="product-search-input" placeholder="Search products by name or category..."
+               class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200 shadow-sm"
+               onkeyup="filterAndSortProducts()">
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+      </div>
+      <div class="relative w-full sm:w-1/3">
+        <select id="product-sort-select"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200 shadow-sm appearance-none pr-10"
+                onchange="filterAndSortProducts()">
+          <option value="default">Sort by: Default</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
+          <option value="rating-desc">Rating: High to Low</option>
+        </select>
+        <i class="fas fa-sort absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+      </div>
+    </div>
+
+    <section class="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 xl:gap-8" id="product-list-container">
+      <p class="text-center text-light-gray col-span-full py-10">Loading products...</p>
+    </section>
+  </main>
+
+  <div id="rechargeModal" class="modal fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 hidden">
+    <div class="modal-content bg-white p-8 rounded-xl shadow-2xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto relative">
+      <span class="close-button absolute top-4 right-6 text-gray-500 text-3xl font-bold cursor-pointer hover:text-gray-800 transition duration-200" onclick="closeModal('rechargeModal')">&times;</span>
+      <h2 class="text-3xl font-extrabold text-primary mb-6 text-center">Recharge Your Account</h2>
+      <div id="recharge-message" class="message hidden p-3 mb-4 rounded-md text-center font-medium"></div>
+      
+      <div class="space-y-5">
+        <div class="form-group">
+          <label for="recharge-amount" class="block text-lg font-medium text-gray-700 mb-2">Amount (INR):</label>
+          <input type="number" id="recharge-amount" step="0.01" min="1" placeholder="Enter amount to recharge" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200">
+        </div>
+        <div class="form-group">
+          <label for="transaction-id" class="block text-lg font-medium text-gray-700 mb-2">Transaction ID:</label>
+          <input type="text" id="transaction-id" placeholder="Enter payment transaction ID" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200">
+        </div>
+        <div class="form-group">
+          <label for="screenshot-url" class="block text-lg font-medium text-gray-700 mb-2">Screenshot URL (Optional):</label>
+          <input type="url" id="screenshot-url" placeholder="URL to payment screenshot" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200">
+        </div>
+      </div>
+      
+      <div class="form-actions flex justify-end gap-4 mt-8">
+        <button class="btn-cancel bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75" onclick="closeModal('rechargeModal')">
+          Cancel
+        </button>
+        <button class="btn-submit bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" onclick="submitRechargeRequest()">
+          Submit Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="purchaseModal" class="modal fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 hidden">
+    <div class="modal-content bg-white p-8 rounded-xl shadow-2xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto relative">
+      <span class="close-button absolute top-4 right-6 text-gray-500 text-3xl font-bold cursor-pointer hover:text-gray-800 transition duration-200" onclick="closeModal('purchaseModal')">&times;</span>
+      <h2 class="text-3xl font-extrabold text-primary mb-6 text-center">Confirm Purchase</h2>
+      <div id="purchase-message" class="message hidden p-3 mb-4 rounded-md text-center font-medium"></div>
+      
+      <div class="text-center text-lg space-y-3">
+        <p>You are about to purchase: <strong id="purchase-product-name" class="text-primary text-xl font-bold"></strong></p>
+        <p>Price: <strong id="purchase-product-price" class="text-green-600 text-xl font-bold"></strong></p>
+        <p>Your current balance: <strong id="purchase-current-balance" class="text-blue-600 text-xl font-bold"></strong></p>
+        <p id="purchase-warning" class="text-danger font-semibold mt-4"></p>
+      </div>
+      
+      <div class="form-actions flex justify-end gap-4 mt-8">
+        <button class="btn-cancel bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75" onclick="closeModal('purchaseModal')">
+          Cancel
+        </button>
+        <button class="btn-submit bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" id="confirm-purchase-btn" onclick="confirmPurchase()">
+          Confirm Purchase
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="chatModal" class="modal fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 hidden">
+    <div class="modal-content bg-white rounded-xl shadow-2xl w-11/12 md:w-3/4 lg:w-2/3 h-[90vh] max-h-[700px] flex flex-col p-0 overflow-hidden">
+      <div class="chat-modal-header bg-primary text-white p-4 md:p-5 text-2xl font-semibold flex justify-between items-center rounded-t-xl">
+        Chat with Admin
+        <span class="close-button relative top-0 right-0 text-white text-3xl font-bold cursor-pointer hover:text-gray-200 transition duration-200" onclick="closeChatModal()">&times;</span>
+      </div>
+      <div class="chat-body flex-grow p-4 md:p-5 overflow-y-auto bg-gray-50 flex flex-col space-y-4" id="chat-messages-container">
+        <p class="text-center text-gray-500 py-10">Loading chat history...</p>
+      </div>
+      <div class="chat-input-area p-4 md:p-5 border-t border-gray-200 bg-gray-100 flex gap-3 items-center">
+        <input type="text" id="user-chat-input" placeholder="Type your message..." onkeypress="handleUserChatInput(event)" class="flex-grow p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent text-lg transition duration-200">
+        <button class="bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" onclick="sendUserMessage()">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="orderHistoryModal" class="modal fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 hidden">
+    <div class="modal-content bg-white p-8 rounded-xl shadow-2xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto relative">
+      <span class="close-button absolute top-4 right-6 text-gray-500 text-3xl font-bold cursor-pointer hover:text-gray-800 transition duration-200" onclick="closeModal('orderHistoryModal')">&times;</span>
+      <h2 class="text-3xl font-extrabold text-primary mb-6 text-center">Your Order History</h2>
+      <div id="order-history-message" class="message hidden p-3 mb-4 rounded-md text-center font-medium"></div>
+      
+      <div id="order-history-list" class="space-y-4">
+        <p class="text-center text-gray-500 py-4">Loading order history...</p>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // Mock google.script.run for local development/testing without Apps Script deployment.
+    // This block ensures that the 'google' object is defined even when not running within
+    // the Google Apps Script environment, preventing 'ReferenceError: google is not defined'.
+    // IMPORTANT: This mock should be removed or commented out when deploying to Google Apps Script.
+    if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+      console.warn("google.script.run is not defined. Using mock implementation for local development.");
+
+      // Mock user data for testing
+      let mockUser = {
+        name: "Test User",
+        email: "test@example.com",
+        balance: 500.75
+      };
+
+      // Mock products data
+      const mockProducts = [
+        { id: 1, name: "Premium Widget", description: "A high-quality widget for all your needs.", price: 100, discountPrice: 90, category: "Electronics", tags: ["new", "best-seller"], rating: 4.5, stock: 10, imageUrl: "https://placehold.co/400x300/a0e0e0/555555?text=Widget+1" },
+        { id: 2, name: "Super Gadget Pro", description: "The latest in gadget technology.", price: 250, category: "Electronics", tags: ["limited"], rating: 4.8, stock: 3, imageUrl: "https://placehold.co/400x300/e0a0e0/555555?text=Gadget+Pro" },
+        { id: 3, name: "Eco-Friendly Water Bottle", description: "Stay hydrated with our sustainable bottle.", price: 25, category: "Home Goods", tags: ["eco", "hydration"], rating: 4.2, stock: 0, imageUrl: "https://placehold.co/400x300/a0a0e0/555555?text=Water+Bottle" },
+        { id: 4, name: "Vintage Vinyl Player", description: "Enjoy classic tunes with a modern twist.", price: 300, discountPrice: 270, category: "Audio", tags: ["retro", "music"], rating: 4.7, stock: -1, imageUrl: "https://placehold.co/400x300/e0e0a0/555555?text=Vinyl+Player" },
+        { id: 5, name: "Smart LED Strip", description: "Illuminate your space with customizable lighting.", price: 45, category: "Smart Home", tags: ["lighting", "smart"], rating: 3.9, stock: 15, imageUrl: "https://placehold.co/400x300/a0e0a0/555555?text=LED+Strip" }
+      ];
+
+      // Mock announcements
+      const mockAnnouncements = [
+        { title: "Flash Sale", content: "Get 10% off all electronics for 24 hours!" },
+        { title: "New Arrivals", content: "Check out our exciting new product range!" }
+      ];
+
+      // Mock chat history
+      let mockChatHistory = [
+        { senderEmail: "admin@example.com", messageContent: "Hello! How can I help you today?", timestamp: Date.now() - 60000 },
+        { senderEmail: "test@example.com", messageContent: "Hi, I have a question about my recent order.", timestamp: Date.now() - 30000 }
+      ];
+
+      // Mock order history data
+      let mockOrderHistory = [
+        { orderId: "ORD001", orderDate: new Date(Date.now() - 86400000 * 5).toLocaleString(), totalAmount: 180, items: [{name: "Premium Widget", quantity: 2, price: 90}], status: "Delivered" },
+        { orderId: "ORD002", orderDate: new Date(Date.now() - 86400000 * 2).toLocaleString(), totalAmount: 250, items: [{name: "Super Gadget Pro", quantity: 1, price: 250}], status: "Processing" },
+        { orderId: "ORD003", orderDate: new Date(Date.now() - 86400000 * 1).toLocaleString(), totalAmount: 45, items: [{name: "Smart LED Strip", quantity: 1, price: 45}], status: "Shipped" }
+      ];
+
+      window.google = {
+        script: {
+          run: {
+            withSuccessHandler: function(callback) {
+              this._successCallback = callback;
+              return this;
+            },
+            withFailureHandler: function(callback) {
+              this._failureCallback = callback;
+              return this;
+            },
+            getAllProducts: function() {
+              setTimeout(() => {
+                this._successCallback(mockProducts);
+              }, 500);
+            },
+            checkUserSession: function(userEmail) {
+              setTimeout(() => {
+                if (userEmail === mockUser.email) {
+                  this._successCallback({ isLoggedIn: true, user: mockUser });
+                } else {
+                  this._successCallback({ isLoggedIn: false });
+                }
+              }, 300);
+            },
+            getAnnouncements: function() {
+              setTimeout(() => {
+                this._successCallback({ success: true, announcements: mockAnnouncements });
+              }, 400);
+            },
+            submitRechargeRequest: function(userEmail, amount, transactionId, screenshotUrl) {
+              setTimeout(() => {
+                if (userEmail === mockUser.email && amount > 0) {
+                  mockUser.balance += amount;
+                  this._successCallback({ success: true, message: `Recharge request for ${formatCurrency(amount)} submitted. Your balance is now ${formatCurrency(mockUser.balance)}.` });
+                } else {
+                  this._successCallback({ success: false, message: "Failed to submit recharge request." });
+                }
+              }, 1000);
+            },
+            submitPurchaseRequest: function(userEmail, userName, productId, productName, productPrice) {
+              setTimeout(() => {
+                if (userEmail === mockUser.email && mockUser.balance >= productPrice) {
+                  mockUser.balance -= productPrice;
+                  // Simulate stock reduction if not -1 (unlimited)
+                  const product = mockProducts.find(p => p.id === productId);
+                  if (product && product.stock !== -1) {
+                      product.stock = Math.max(0, product.stock - 1);
+                  }
+                  // Simulate adding to order history
+                  mockOrderHistory.push({
+                      orderId: "ORD" + (mockOrderHistory.length + 1).toString().padStart(3, '0'),
+                      orderDate: new Date().toLocaleString(),
+                      totalAmount: productPrice,
+                      items: [{name: productName, quantity: 1, price: productPrice}],
+                      status: "Completed"
+                  });
+                  this._successCallback({ success: true, message: `Purchase of ${productName} successful! Your new balance is ${formatCurrency(mockUser.balance)}.` });
+                } else {
+                  this._successCallback({ success: false, message: "Purchase failed due to insufficient balance or other error." });
+                }
+              }, 1000);
+            },
+            getChatHistory: function(userEmail, adminEmail) {
+                setTimeout(() => {
+                    this._successCallback({ success: true, chatHistory: mockChatHistory });
+                }, 500);
+            },
+            sendMessage: function(senderEmail, receiverEmail, messageContent) {
+                setTimeout(() => {
+                    mockChatHistory.push({ senderEmail: senderEmail, messageContent: messageContent, timestamp: Date.now() });
+                    // Simulate admin reply
+                    if (senderEmail !== adminEmail) {
+                        mockChatHistory.push({ senderEmail: adminEmail, messageContent: `Admin received: "${messageContent}"`, timestamp: Date.now() + 500 });
+                    }
+                    this._successCallback({ success: true, message: "Message sent!" });
+                }, 700);
+            },
+            // New mock function for order history
+            getOrderHistory: function(userEmail) {
+                setTimeout(() => {
+                    if (userEmail === mockUser.email) {
+                        this._successCallback({ success: true, orders: mockOrderHistory });
+                    } else {
+                        this._successCallback({ success: false, message: "User not found or no order history." });
+                    }
+                }, 700);
+            }
+          }
+        }
+      };
+    }
+
+    // Global variable to store current user data (fetched from Apps Script)
+    let currentUser = null;
+    // Admin email for chat, consistent with Code.gs ADMIN_EMAIL
+    const ADMIN_EMAIL = "admin@example.com"; // MUST MATCH ADMIN_EMAIL IN Code.gs
+
+    // Announcement caching and display logic
+    let announcementsCache = [];
+    let currentAnnouncementIndex = 0;
+    let notificationInterval;
+    let allProducts = []; // Cache all products to enable client-side filtering/sorting
+
+    // Helper to call Apps Script functions
+    function callAppsScript(functionName, args, successCallback, errorCallback) {
+        google.script.run
+            .withSuccessHandler(successCallback)
+            .withFailureHandler(errorCallback)
+            [functionName].apply(null, args);
+    }
+
+    // Generic message display for forms and lists
+    function showShopMessage(message, isSuccess) {
+      let msgDiv = document.getElementById('shop-message');
+      if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.id = 'shop-message';
+        document.body.appendChild(msgDiv);
+      }
+      msgDiv.textContent = message;
+      // Dynamically add Tailwind classes based on success/error
+      msgDiv.className = `message p-4 mb-6 rounded-lg text-center font-medium shadow-sm transition-all duration-300 ease-in-out ${isSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+      msgDiv.classList.remove('hidden'); // Ensure it's visible before adding active
+      msgDiv.classList.add('active'); // Add active class to trigger CSS transition
+
+      setTimeout(() => {
+        msgDiv.classList.remove('active'); // Trigger fade-out
+        msgDiv.classList.add('hide'); // Add hide class for a specific fade-out animation if defined
+        setTimeout(() => { 
+          msgDiv.classList.add('hidden'); // Fully hide after transition
+          msgDiv.classList.remove('hide'); // Remove hide class for next use
+        }, 300); 
+      }, 3000);
+    }
+
+    // Modal control functions
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden'); // Use Tailwind's hidden class
+        // Add a class for animation if needed, e.g., for `fadeIn`
+        document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active'); // Trigger fade-out animation
+        // Delay hiding the modal content until after the animation
+        setTimeout(() => {
+            document.getElementById(modalId).classList.add('hidden'); // Use Tailwind's hidden class
+            // Clear specific modal messages when closing
+            if (modalId === 'rechargeModal') {
+                document.getElementById('recharge-message').classList.add('hidden');
+                document.getElementById('recharge-amount').value = '';
+                document.getElementById('transaction-id').value = '';
+                document.getElementById('screenshot-url').value = '';
+            } else if (modalId === 'purchaseModal') {
+                document.getElementById('purchase-message').classList.add('hidden');
+            } else if (modalId === 'orderHistoryModal') { // Clear message for new modal
+                document.getElementById('order-history-message').classList.add('hidden');
+            }
+        }, 300); // Match animation duration
+    }
+
+    // --- User Session Management ---
+    async function loadShopUserSession() {
+        const userEmail = localStorage.getItem('currentUserEmail');
+        const authHeaderSection = document.getElementById('auth-header-section');
+        const rechargeBtn = document.getElementById('recharge-btn');
+        const chatBtn = document.getElementById('chat-btn');
+        const orderHistoryBtn = document.getElementById('order-history-btn'); // Get the new button
+        const authActionBtn = document.getElementById('auth-action-btn');
+
+        if (userEmail) {
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    callAppsScript(
+                        'checkUserSession',
+                        [userEmail],
+                        resolve,
+                        reject
+                    );
+                });
+
+                if (response.isLoggedIn && response.user) {
+                    currentUser = response.user;
+                    authHeaderSection.innerHTML = `
+                        <h1 id="welcome-message" class="text-xl md:text-2xl font-semibold">Welcome, ${currentUser.name}!</h1>
+                        <div class="user-info text-lg md:text-xl font-medium">Balance: <span id="user-balance-display" class="balance font-bold">${formatCurrency(currentUser.balance)}</span></div>
+                    `;
+                    rechargeBtn.classList.remove('hidden');
+                    chatBtn.classList.remove('hidden');
+                    orderHistoryBtn.classList.remove('hidden'); // Show order history button
+                    authActionBtn.textContent = 'Logout';
+                    authActionBtn.onclick = logout;
+                    authActionBtn.classList.remove('bg-primary', 'hover:bg-blue-700');
+                    authActionBtn.classList.add('bg-white', 'hover:bg-gray-200', 'text-gray-800');
+
+                    // Ensure the purchase modal balance is updated when session loads
+                    if (document.getElementById('purchase-current-balance')) {
+                        document.getElementById('purchase-current-balance').textContent = formatCurrency(currentUser.balance);
+                    }
+                    console.log("User session loaded:", currentUser);
+                } else {
+                    // Session invalid, treat as logged out but allow Browse
+                    console.log("User session invalid, operating in browse-only mode.");
+                    currentUser = null;
+                    displayLoggedOutHeader();
+                }
+            } catch (error) {
+                console.error("Error checking user session:", error);
+                // On error, treat as logged out but allow Browse
+                currentUser = null;
+                displayLoggedOutHeader();
+            }
+        } else {
+            // No user email in local storage, operate in browse-only mode
+            console.log("No user email in local storage, operating in browse-only mode.");
+            currentUser = null;
+            displayLoggedOutHeader();
+        }
+    }
+
+    // New function to display header elements when not logged in
+    function displayLoggedOutHeader() {
+        const authHeaderSection = document.getElementById('auth-header-section');
+        const rechargeBtn = document.getElementById('recharge-btn');
+        const chatBtn = document.getElementById('chat-btn');
+        const orderHistoryBtn = document.getElementById('order-history-btn'); // Get the new button
+        const authActionBtn = document.getElementById('auth-action-btn');
+
+        authHeaderSection.innerHTML = `
+            <h1 id="welcome-message" class="text-xl md:text-2xl font-semibold">Welcome, Guest!</h1>
+            <div class="user-info text-lg md:text-xl font-medium">Browse our products.</div>
+        `;
+        rechargeBtn.classList.add('hidden'); // Hide recharge button
+        chatBtn.classList.add('hidden'); // Hide chat button
+        orderHistoryBtn.classList.add('hidden'); // Hide order history button
+
+        authActionBtn.textContent = 'Login / Signup';
+        authActionBtn.onclick = () => {
+            // Redirect to the login page for login/signup
+           // This line will redirect the entire browser window/tab to the specified Google Apps Script web app URL.
+window.top.location.href = 'https://script.google.com/macros/s/AKfycbx4fLuREniT12IVj_kxcBt29-JrlNk8OSAMeU96FevuoO2rVew7dRyRA3ia7PrZhwwjKg/exec';
+        };
+        authActionBtn.classList.remove('bg-white', 'hover:bg-gray-200', 'text-gray-800');
+        authActionBtn.classList.add('bg-primary', 'hover:bg-blue-700'); // Style as primary action button
+    }
+
+
+    function logout() {
+        localStorage.clear(); // Clear all user-related data
+        currentUser = null;
+        showShopMessage('You have been logged out.', true);
+        setTimeout(() => {
+           // This line will redirect the entire browser window/tab to the specified Google Apps Script web app URL.
+window.top.location.href = 'https://script.google.com/macros/s/AKfycbx4fLuREniT12IVj_kxcBt29-JrlNk8OSAMeU96FevuoO2rVew7dRyRA3ia7PrZhwwjKg/exec';// Redirect to login page
+        }, 1000);
+    }
+
+    // --- Currency Formatting Helper ---
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR'
+        }).format(amount);
+    }
+
+    // --- Product Loading, Filtering & Display ---
+    function loadProducts() {
+        callAppsScript(
+            'getAllProducts',
+            [],
+            function(products) {
+                allProducts = products; // Cache all products
+                filterAndSortProducts(); // Apply filters and sorting immediately
+                showShopMessage('Products loaded.', true);
+            },
+            function(error) {
+                console.error('Error loading products:', error);
+                const container = document.getElementById('product-list-container');
+                container.innerHTML = '<p class="text-center text-danger col-span-full py-10">Error loading products: ' + error.message + '</p>';
+                showShopMessage('Error loading products.', false);
+            }
+        );
+    }
+
+    function filterAndSortProducts() {
+        let filteredProducts = [...allProducts]; // Start with a copy of all products
+
+        // 1. Apply Filtering
+        const searchInput = document.getElementById('product-search-input');
+        const searchTerm = searchInput.value.toLowerCase().trim();
+
+        if (searchTerm) {
+            filteredProducts = filteredProducts.filter(product =>
+                (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+                (product.category && product.category.toLowerCase().includes(searchTerm)) ||
+                (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+            );
+        }
+
+        // 2. Apply Sorting
+        const sortSelect = document.getElementById('product-sort-select');
+        const sortBy = sortSelect.value;
+
+        filteredProducts.sort((a, b) => {
+            switch (sortBy) {
+                case 'price-asc':
+                    return (parseFloat(a.discountPrice || a.price) || 0) - (parseFloat(b.discountPrice || b.price) || 0);
+                case 'price-desc':
+                    return (parseFloat(b.discountPrice || b.price) || 0) - (parseFloat(a.discountPrice || a.price) || 0);
+                case 'name-asc':
+                    return (a.name || '').localeCompare(b.name || '');
+                case 'name-desc':
+                    return (b.name || '').localeCompare(a.name || '');
+                case 'rating-desc':
+                    return (b.rating || 0) - (a.rating || 0);
+                default:
+                    return 0; // No sorting
+            }
+        });
+
+        // 3. Display Products
+        displayProducts(filteredProducts);
+    }
+
+    function displayProducts(productsToDisplay) {
+        const container = document.getElementById('product-list-container');
+        container.innerHTML = ''; // Clear existing products
+
+        if (productsToDisplay && productsToDisplay.length > 0) {
+            productsToDisplay.forEach(product => {
+                const productCard = document.createElement('div');
+                // Tailwind classes for a sleek card design with subtle animation on load
+                productCard.className = 'product-card bg-card rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-105 animate-slideInFromBottom';
+                
+                const displayPrice = parseFloat(product.price || 0);
+                const displayDiscountPrice = product.discountPrice ? parseFloat(product.discountPrice) : null;
+                
+                let priceHtml = `<span class="text-2xl md:text-3xl font-extrabold text-primary">${formatCurrency(displayPrice)}</span>`; // Larger, bolder price
+                if (displayDiscountPrice && displayDiscountPrice < displayPrice) {
+                    priceHtml = `
+                        <span class="text-2xl md:text-3xl font-extrabold text-primary relative">
+                            ${formatCurrency(displayDiscountPrice)}
+                            <span class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full transform rotate-12 -translate-y-1/2">SALE!</span>
+                        </span> 
+                        <span class="text-sm text-gray-500 line-through ml-2">${formatCurrency(displayPrice)}</span>
+                    `; // Sale badge for discount
+                }
+
+                let stockInfoHtml = '';
+                if (product.stock === -1) {
+                    stockInfoHtml = `<span class="text-sm font-semibold text-secondary bg-green-100 px-2 py-1 rounded-full">Unlimited Stock</span>`;
+                } else if (product.stock <= 5 && product.stock > 0) {
+                    stockInfoHtml = `<span class="text-sm font-semibold text-danger bg-red-100 px-2 py-1 rounded-full">Low Stock: ${product.stock} left!</span>`;
+                } else if (product.stock === 0) {
+                    stockInfoHtml = `<span class="text-sm font-semibold text-danger bg-red-100 px-2 py-1 rounded-full">Out of Stock</span>`;
+                } else {
+                    stockInfoHtml = `<span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">Stock: ${product.stock}</span>`;
+                }
+                
+                // Disable buy button if not logged in or out of stock
+                const isBuyDisabled = !currentUser || product.stock === 0;
+
+                productCard.innerHTML = `
+                    <div class="product-image-container w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="${product.imageUrl || 'https://placehold.co/400x300/e0e0e0/555555?text=No+Image'}" alt="${product.name}" class="product-image w-full h-full object-contain transition-transform duration-300 transform hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/400x300/e0e0e0/555555?text=Image+Error';">
+                    </div>
+                    <div class="product-info p-4 flex flex-col flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${product.name}</h3>
+                        <p class="text-sm text-light-gray mb-3 leading-relaxed flex-grow">${product.description || 'No description available.'}</p>
+                        
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="text-xs font-bold text-price-tag bg-price-tag px-2 py-1 rounded-full">${product.category || 'General'}</span>
+                            ${product.tags && product.tags.length > 0 ? product.tags.map(tag => `<span class="text-xs text-gray-600 bg-gray-200 px-2 py-1 rounded-full">${tag}</span>`).join('') : ''}
+                        </div>
+
+                        <div class="price-section flex items-baseline justify-between mb-4">
+                            ${priceHtml}
+                            <div class="rating-section text-yellow-500 text-base">
+                                ${'★'.repeat(Math.floor(product.rating || 0))}
+                                ${product.rating % 1 !== 0 ? '½' : ''}
+                                <span class="text-gray-400">(${(product.rating || 0).toFixed(1)})</span>
+                            </div>
+                        </div>
+                        <div class="product-actions flex items-center justify-between gap-3 mt-auto">
+                            <button class="buy-btn flex-grow font-bold py-2.5 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-opacity-75 ${isBuyDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-blue-700 text-white focus:ring-blue-400'}" 
+                                    onclick="${isBuyDisabled ? '' : `openPurchaseModal(${product.id}, '${product.name}', ${displayDiscountPrice !== null ? displayDiscountPrice : displayPrice})`}" ${isBuyDisabled ? 'disabled' : ''}>
+                                ${isBuyDisabled && !currentUser ? 'Login to Buy' : (product.stock === 0 ? 'Out of Stock' : 'Buy Now')}
+                            </button>
+                            ${stockInfoHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(productCard);
+            });
+        } else {
+            container.innerHTML = '<p class="text-center text-gray-500 col-span-full py-10">No products found matching your criteria.</p>';
+        }
+    }
+
+    // --- Recharge Request Logic ---
+    function openRechargeModal() {
+        if (!currentUser) {
+            showShopMessage('Please log in to recharge your account.', false);
+            return;
+        }
+        document.getElementById('recharge-message').classList.add('hidden'); // Clear previous messages
+        document.getElementById('recharge-amount').value = '';
+        document.getElementById('transaction-id').value = '';
+        document.getElementById('screenshot-url').value = '';
+        openModal('rechargeModal');
+    }
+
+    function submitRechargeRequest() {
+        const amount = document.getElementById('recharge-amount').value;
+        const transactionId = document.getElementById('transaction-id').value;
+        const screenshotUrl = document.getElementById('screenshot-url').value;
+
+        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+            showShopMessage('Please enter a valid amount to recharge.', false);
+            return;
+        }
+        if (!transactionId) {
+            showShopMessage('Please enter a transaction ID.', false);
+            return;
+        }
+        if (!currentUser || !currentUser.email) {
+            showShopMessage('User not logged in. Please log in again.', false);
+            return;
+        }
+
+        const rechargeData = {
+            userEmail: currentUser.email,
+            amount: parseFloat(amount),
+            transactionId: transactionId,
+            screenshotUrl: screenshotUrl
+        };
+
+        callAppsScript(
+            'submitRechargeRequest',
+            [rechargeData.userEmail, rechargeData.amount, rechargeData.transactionId, rechargeData.screenshotUrl],
+            function(response) {
+                if (response.success) {
+                    showShopMessage(response.message, true);
+                    closeModal('rechargeModal');
+                    loadShopUserSession(); // Refresh balance
+                } else {
+                    showShopMessage(response.message, false);
+                    console.error('Recharge request submission error:', response.message);
+                }
+            },
+            function(error) {
+                showShopMessage('Error submitting recharge request: ' + error.message, false);
+                console.error('Recharge request RPC error:', error);
+            }
+        );
+    }
+
+    // --- Purchase Request Logic ---
+    let selectedProductId = null;
+    let selectedProductName = '';
+    let selectedProductPrice = 0;
+
+    function openPurchaseModal(productId, productName, productPrice) {
+        if (!currentUser) {
+            showShopMessage('Please log in to purchase products.', false);
+            return;
+        }
+
+        selectedProductId = productId;
+        selectedProductName = productName;
+        selectedProductPrice = productPrice;
+
+        document.getElementById('purchase-product-name').textContent = productName;
+        document.getElementById('purchase-product-price').textContent = formatCurrency(productPrice);
+        document.getElementById('purchase-current-balance').textContent = formatCurrency(currentUser ? currentUser.balance : 0);
+
+        const purchaseWarning = document.getElementById('purchase-warning');
+        const confirmBtn = document.getElementById('confirm-purchase-btn');
+
+        if (currentUser && currentUser.balance < productPrice) {
+            purchaseWarning.textContent = 'Insufficient balance! Please recharge your account.';
+            confirmBtn.disabled = true;
+            // Tailwind classes for disabled state
+            confirmBtn.classList.add('bg-gray-400', 'hover:bg-gray-400', 'cursor-not-allowed', 'shadow-none');
+            confirmBtn.classList.remove('bg-primary', 'hover:bg-blue-700', 'shadow-md', 'hover:shadow-lg', 'transform', 'hover:-translate-y-0.5');
+        } else {
+            purchaseWarning.textContent = '';
+            confirmBtn.disabled = false;
+            // Tailwind classes for active state
+            confirmBtn.classList.remove('bg-gray-400', 'hover:bg-gray-400', 'cursor-not-allowed', 'shadow-none');
+            confirmBtn.classList.add('bg-primary', 'hover:bg-blue-700', 'shadow-md', 'hover:shadow-lg', 'transform', 'hover:-translate-y-0.5');
+        }
+
+        document.getElementById('purchase-message').classList.add('hidden'); // Clear previous messages
+        openModal('purchaseModal');
+    }
+
+    function confirmPurchase() {
+        if (!currentUser || !currentUser.email) {
+            showShopMessage('User not logged in. Please log in again.', false);
+            closeModal('purchaseModal');
+            return;
+        }
+        if (currentUser.balance < selectedProductPrice) {
+            showShopMessage('Insufficient balance for this purchase. Please recharge.', false);
+            closeModal('purchaseModal');
+            return;
+        }
+
+        callAppsScript(
+            'submitPurchaseRequest',
+            [currentUser.email, currentUser.name, selectedProductId, selectedProductName, selectedProductPrice],
+            function(response) {
+                if (response.success) {
+                    showShopMessage(response.message, true);
+                    closeModal('purchaseModal');
+                    loadShopUserSession(); // Update balance immediately
+                    loadProducts(); // Refresh products to reflect stock changes
+                } else {
+                    showShopMessage(response.message, false);
+                    console.error('Purchase request submission error:', response.message);
+                }
+            },
+            function(error) {
+                showShopMessage('Error submitting purchase request: ' + error.message, false);
+                console.error('Purchase request RPC error:', error);
+            }
+        );
+    }
+
+    // --- Chat Logic ---
+    let chatRefreshIntervalId = null; // Declare global for chat refresh
+
+    function openChatModal() {
+        if (!currentUser) {
+            showShopMessage('Please log in to chat with admin.', false);
+            return;
+        }
+        document.getElementById('user-chat-input').value = ''; // Clear input
+        loadChatHistory();
+        startChatRefresh(); // Start refreshing messages
+        openModal('chatModal');
+    }
+
+    function closeChatModal() {
+        stopChatRefresh(); // Stop refreshing messages when modal is closed
+        closeModal('chatModal');
+    }
+
+    function loadChatHistory() {
+        if (!currentUser || !currentUser.email) {
+            document.getElementById('chat-messages-container').innerHTML = '<p class="text-center text-danger py-10">Please log in to chat.</p>';
+            return;
+        }
+
+        callAppsScript(
+            'getChatHistory',
+            [currentUser.email, ADMIN_EMAIL],
+            function(response) {
+                const messagesDiv = document.getElementById('chat-messages-container');
+                // Check if already scrolled to bottom before clearing
+                const wasScrolledToBottom = messagesDiv.scrollHeight - messagesDiv.clientHeight <= messagesDiv.scrollTop + 1; // Add a small tolerance
+
+                messagesDiv.innerHTML = ''; // Clear existing messages
+                if (response.success && response.chatHistory && response.chatHistory.length > 0) {
+                    response.chatHistory.forEach(msg => {
+                        const msgRow = document.createElement('div');
+                        // Determine if the message is from the current user or the admin
+                        const isUserMessage = msg.senderEmail === currentUser.email;
+                        // Apply Tailwind classes for chat bubbles
+                        msgRow.className = `flex ${isUserMessage ? 'justify-end' : 'justify-start'}`;
+                        
+                        msgRow.innerHTML = `
+                            <div class="chat-bubble max-w-[75%] p-3 rounded-2xl shadow-sm flex flex-col gap-1 text-sm ${isUserMessage ? 'bg-chat-user text-gray-800 rounded-br-md' : 'bg-chat-admin text-gray-800 rounded-bl-md'}">
+                                <div>${msg.messageContent}</div>
+                                <span class="text-xs text-gray-500 self-end">${new Date(msg.timestamp).toLocaleString()}</span>
+                            </div>
+                        `;
+                        messagesDiv.appendChild(msgRow);
+                    });
+                    // Only scroll to bottom if it was already at or near bottom
+                    if (wasScrolledToBottom) {
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+                } else {
+                    messagesDiv.innerHTML = '<p class="text-center text-gray-500 py-10">No messages yet. Send a message to the admin!</p>';
+                }
+            },
+            function(error) {
+                document.getElementById('chat-messages-container').innerHTML = '<p class="text-center text-danger py-10">Error loading chat history.</p>';
+                console.error('Error loading chat history:', error);
+            }
+        );
+    }
+
+    function sendUserMessage() {
+        const messageInput = document.getElementById('user-chat-input');
+        const messageContent = messageInput.value.trim();
+
+        if (!messageContent) {
+            showShopMessage('Please type a message to send.', false);
+            return;
+        }
+        if (!currentUser || !currentUser.email) {
+            showShopMessage('You must be logged in to send messages.', false);
+            return;
+        }
+
+        messageInput.value = ''; // Clear input immediately
+
+        callAppsScript(
+            'sendMessage',
+            [currentUser.email, ADMIN_EMAIL, messageContent],
+            function(response) {
+                if (response.success) {
+                    // Message sent, refresh chat history to show it immediately
+                    loadChatHistory();
+                } else {
+                    showShopMessage('Failed to send message: ' + response.message, false);
+                    console.error('Error sending message:', response.message);
+                }
+            },
+            function(error) {
+                showShopMessage('Error sending message: ' + error.message, false);
+                console.error('Error sending message RPC:', error);
+            }
+        );
+    }
+
+    function handleUserChatInput(event) {
+        if (event.key === 'Enter') {
+            sendUserMessage();
+        }
+    }
+
+    function startChatRefresh() {
+        stopChatRefresh(); // Clear any existing interval
+        chatRefreshIntervalId = setInterval(loadChatHistory, 5000); // Refresh every 5 seconds
+    }
+
+    function stopChatRefresh() {
+        if (chatRefreshIntervalId) {
+            clearInterval(chatRefreshIntervalId);
+            chatRefreshIntervalId = null;
+        }
+    }
+
+    // --- Order History Logic ---
+    function openOrderHistoryModal() {
+        if (!currentUser) {
+            showShopMessage('Please log in to view your order history.', false);
+            return;
+        }
+        document.getElementById('order-history-message').classList.add('hidden'); // Clear previous messages
+        loadOrderHistory();
+        openModal('orderHistoryModal');
+    }
+
+    function loadOrderHistory() {
+        if (!currentUser || !currentUser.email) {
+            document.getElementById('order-history-list').innerHTML = '<p class="text-center text-danger py-10">Please log in to view order history.</p>';
+            return;
+        }
+
+        callAppsScript(
+            'getOrderHistory',
+            [currentUser.email],
+            function(response) {
+                if (response.success && response.orders && response.orders.length > 0) {
+                    displayOrderHistory(response.orders);
+                } else {
+                    document.getElementById('order-history-list').innerHTML = '<p class="text-center text-gray-500 py-10">No orders found.</p>';
+                }
+            },
+            function(error) {
+                document.getElementById('order-history-list').innerHTML = '<p class="text-center text-danger py-10">Error loading order history.</p>';
+                console.error('Error loading order history:', error);
+            }
+        );
+    }
+
+    function displayOrderHistory(orders) {
+        const orderListContainer = document.getElementById('order-history-list');
+        orderListContainer.innerHTML = ''; // Clear existing orders
+
+        orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // Sort by date, newest first
+
+        orders.forEach(order => {
+            const orderCard = document.createElement('div');
+            orderCard.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200';
+            
+            let itemsHtml = order.items.map(item => `
+                <li class="flex justify-between items-center text-sm text-gray-700">
+                    <span>${item.name} (x${item.quantity})</span>
+                    <span>${formatCurrency(item.price * item.quantity)}</span>
+                </li>
+            `).join('');
+
+            orderCard.innerHTML = `
+                <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">Order ID: ${order.orderId}</h3>
+                    <span class="text-sm font-medium text-gray-600">${order.orderDate}</span>
+                </div>
+                <ul class="list-none p-0 m-0 space-y-1">
+                    ${itemsHtml}
+                </ul>
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
+                    <span class="text-md font-bold text-gray-900">Total: ${formatCurrency(order.totalAmount)}</span>
+                    <span class="text-sm font-semibold ${order.status === 'Delivered' ? 'text-green-600' : (order.status === 'Processing' ? 'text-blue-600' : 'text-orange-600')}">${order.status}</span>
+                </div>
+            `;
+            orderListContainer.appendChild(orderCard);
+        });
+    }
+
+
+    // --- Announcement Notification Bar Logic ---
+    function loadAnnouncementsAndDisplayNotification() {
+        callAppsScript(
+            'getAnnouncements',
+            [],
+            function(response) {
+                if (response.success && response.announcements && response.announcements.length > 0) {
+                    announcementsCache = response.announcements;
+                    currentAnnouncementIndex = 0;
+                    displayCurrentAnnouncement();
+                    showNotification(); // Show the notification bar
+                    // Start cycling announcements if there's more than one
+                    if (announcementsCache.length > 1) {
+                        clearInterval(notificationInterval); // Clear any old interval
+                        notificationInterval = setInterval(cycleAnnouncements, 7000); // Change every 7 seconds
+                    } else {
+                        clearInterval(notificationInterval); // No need to cycle if only one
+                    }
+                } else {
+                    hideNotification(); // Hide if no announcements
+                }
+            },
+            function(error) {
+                console.error('Error loading announcements for notification:', error);
+                hideNotification(); // Hide on error
+            }
+        );
+    }
+
+    function displayCurrentAnnouncement() {
+        if (announcementsCache.length > 0) {
+            const announcement = announcementsCache[currentAnnouncementIndex];
+            document.getElementById('notification-text').textContent = `📢 ${announcement.title}: ${announcement.content}`;
+        }
+    }
+
+    function cycleAnnouncements() {
+        currentAnnouncementIndex = (currentAnnouncementIndex + 1) % announcementsCache.length;
+        displayCurrentAnnouncement();
+    }
+
+    function showNotification() {
+        document.getElementById('notification-bar').classList.add('active');
+    }
+
+    function hideNotification() {
+        document.getElementById('notification-bar').classList.remove('active');
+        clearInterval(notificationInterval); // Stop cycling when hidden
+    }
+
+    // Initial loads when the page opens
+    window.onload = function() {
+        loadShopUserSession(); // Try to load user session for shop page
+        loadProducts(); // Load products
+        loadAnnouncementsAndDisplayNotification(); // Load and display announcements
+    };
+
+    // Auto-refresh products periodically
+    setInterval(loadProducts, 30000); // Refresh products every 30 seconds
+    // Announcements are handled by their own interval which cycles them.
+  </script>
+</body>
+</html>
